@@ -1,0 +1,52 @@
+name: Dev CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  build-and-deploy:
+    name: Run Tests and Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          echo "📦 Installing dependencies..."
+          npm ci
+          echo "✅ Dependencies installed successfully"
+
+      - name: Run quality checks
+        run: |
+          echo "🔍 Running type checking..."
+          npm run check
+          echo "✅ Type checking passed"
+
+      - name: Build application
+        run: |
+          echo "🏗️ Building application..."
+          npm run build
+          echo "✅ Build completed successfully"
+
+      - name: Create Pull Request from dev to prod
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          source: dev
+          target: production
+          title: '🔁 Sync: dev → prod'
+          body: |
+            This PR was automatically created because new commits were pushed to the `dev` branch.
+            Please review and merge if appropriate.
+          draft: false
+          delete-branch: false
