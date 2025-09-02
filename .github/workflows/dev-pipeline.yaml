@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   build-and-deploy:
-    name: Run Tests and Create Unique PR
+    name: Run Tests and Create/Update PR
     runs-on: ubuntu-latest
 
     steps:
@@ -42,30 +42,24 @@ jobs:
           npm run build
           echo "✅ Build completed successfully"
 
-      - name: Create unique PR from dev to main
+      - name: Create PR from dev to main (if not exists)
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "🔄 Creating unique PR from dev to main..."
+          echo "🔍 Checking for existing PR from dev to main..."
 
-          TIMESTAMP=$(date +%Y%m%d-%H%M%S)
-          TEMP_BRANCH="pr-dev-${TIMESTAMP}"
+          # Check if a PR from dev to main already exists
+          PR_EXISTS=$(gh pr list --base main --head dev --json number --jq '.[0].number')
 
-          # Create new temp branch from dev
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git fetch origin dev
-          git checkout -b $TEMP_BRANCH origin/dev
-
-          # Push temp branch
-          git push origin $TEMP_BRANCH
-
-          # Create PR using GitHub CLI
-          gh pr create \
-            --title "Auto PR from dev: $TEMP_BRANCH" \
-            --body "This is an automated pull request from the dev branch at $TIMESTAMP." \
-            --base main \
-            --head $TEMP_BRANCH \
-            --label "automated-pr,needs-review"
-
-          echo "✅ PR created from $TEMP_BRANCH to main"
+          if [ "$PR_EXISTS" ]; then
+            echo "✅ PR already exists: #$PR_EXISTS"
+          else
+            echo "📝 Creating new PR from dev to main..."
+            gh pr create \
+              --title "Dev → Main PR" \
+              --body "Automated pull request created from a push to the dev branch." \
+              --base main \
+              --head dev \
+              --label "automated-pr,needs-review"
+            echo "✅ PR created successfully"
+          fi
