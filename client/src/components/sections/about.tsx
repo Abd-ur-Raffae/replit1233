@@ -29,9 +29,9 @@ export default function About() {
               data-testid="about-image"
             >
               <img
-                src="./src/public/44.jpeg"
+                src="./src/public/2.jpeg"
                 alt="Professional developer workspace"
-                className="rounded-2xl shadow-2xl w-10h-auto"
+                className="rounded-2xl shadow-2xl w-auto h-auto"
               />
             </motion.div>
 
