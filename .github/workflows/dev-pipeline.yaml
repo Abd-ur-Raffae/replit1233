@@ -5,9 +5,13 @@ on:
     branches:
       - dev
 
+permissions:
+  contents: write
+  pull-requests: write
+
 jobs:
   build-and-deploy:
-    name: Run Tests and Deploy
+    name: Run Tests and Create Unique PR
     runs-on: ubuntu-latest
 
     steps:
@@ -38,17 +42,30 @@ jobs:
           npm run build
           echo "✅ Build completed successfully"
 
-      - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v6
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "Auto-created PR from ${{ github.ref_name }}"
-          title: "Auto PR: ${{ github.ref_name }}"
-          body: |
-            Automated pull request created from push to `${{ github.ref_name }}`
-            Triggered by: `${{ github.actor }}`
-          branch: ${{ github.ref_name }}
-          base: main
-          labels: |
-            automated-pr
-            needs-review
+      - name: Create unique PR from dev to main
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "🔄 Creating unique PR from dev to main..."
+
+          TIMESTAMP=$(date +%Y%m%d-%H%M%S)
+          TEMP_BRANCH="pr-dev-${TIMESTAMP}"
+
+          # Create new temp branch from dev
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git fetch origin dev
+          git checkout -b $TEMP_BRANCH origin/dev
+
+          # Push temp branch
+          git push origin $TEMP_BRANCH
+
+          # Create PR using GitHub CLI
+          gh pr create \
+            --title "Auto PR from dev: $TEMP_BRANCH" \
+            --body "This is an automated pull request from the dev branch at $TIMESTAMP." \
+            --base main \
+            --head $TEMP_BRANCH \
+            --label "automated-pr,needs-review"
+
+          echo "✅ PR created from $TEMP_BRANCH to main"
