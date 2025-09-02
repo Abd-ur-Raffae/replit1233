@@ -38,15 +38,18 @@ jobs:
           npm run build
           echo "✅ Build completed successfully"
 
-      - name: Create Pull Request from dev to prod
-        uses: peter-evans/create-pull-request@v6
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          source: dev
-          target: production
-          title: '🔁 Sync: dev → prod'
-          body: |
-            This PR was automatically created because new commits were pushed to the `dev` branch.
-            Please review and merge if appropriate.
-          draft: false
-          delete-branch: false
+       - name: Create Pull Request
+         uses: peter-evans/create-pull-request@v6
+         with:
+            token: ${{ secrets.GITHUB_TOKEN }}
+            commit-message: ""Auto-created PR from ${{ github.ref_name }}""
+            title: ""Auto PR: ${{ github.ref_name }}""
+            body: |
+              Automated pull request created from push to ${{ github.ref_name }}  
+            Branch: ${{ github.ref_name }}
+            Triggered by: ${{ github.actor }}
+            branch: ${{ github.ref_name }}
+            base: main
+            labels: |
+              automated-pr
+              needs-review
