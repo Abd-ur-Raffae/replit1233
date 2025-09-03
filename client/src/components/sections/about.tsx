@@ -29,7 +29,7 @@ export default function About() {
               data-testid="about-image"
             >
               <img
-                src="./components/public/2.jpeg"
+                src="/assets/images/2.jpeg"
                 alt="Professional developer workspace"
                 className="rounded-2xl shadow-2xl w-auto h-auto"
               />
