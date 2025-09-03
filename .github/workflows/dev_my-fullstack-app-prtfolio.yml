@@ -1,0 +1,70 @@
+name: Dev → Azure + PR to Main
+
+on:
+  push:
+    branches:
+      - dev
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  id-token: write  # Needed for Azure login
+
+jobs:
+  build-and-deploy:
+    name: Build, Deploy to Azure, and Create PR
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: ⬇️ Checkout code
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 🔍 Run quality checks
+        run: npm run check
+
+      - name: 🏗️ Build application
+        run: npm run build
+
+      - name: 🔐 Login to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_7A65D092F2764595B1D22BA1C6E25C3A }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_891C7C26852D4F5F85D43D831D728A20 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_69F8249C4C6745DA8AE6EA40FC13C9CA }}
+
+      - name: 🚀 Deploy to Azure Web App
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: 'my-fullstack-app-prtfolio'
+          slot-name: 'Production'
+          package: .
+
+      - name: 🔄 Create PR from dev to main (if not exists)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "🔍 Checking for existing PR from dev to main..."
+          PR_EXISTS=$(gh pr list --base main --head dev --json number --jq '.[0].number')
+
+          if [ "$PR_EXISTS" ]; then
+            echo "✅ PR already exists: #$PR_EXISTS"
+          else
+            echo "📝 Creating new PR from dev to main..."
+            gh pr create \
+              --title "Promote Dev to Production" \
+              --body "✅ Deployment to Azure succeeded. Ready to merge to production." \
+              --base main \
+              --head dev \
+              --label "automated-pr,needs-review"
+            echo "✅ PR created successfully"
+          fi
