@@ -9,7 +9,7 @@ on:
 permissions:
   contents: write
   pull-requests: write
-  id-token: write  # Needed for Azure login
+  id-token: write  
 
 jobs:
   build-and-deploy:
