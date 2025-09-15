@@ -110,11 +110,13 @@ export const usePWA = () => {
       }
 
       // Subscribe to push notifications
+      // Get VAPID public key from server or use environment variable
+      const vapidKey = import.meta.env.VITE_VAPID_PUBLIC_KEY || 
+        'BEl62iUYgUivxIkv69yViEuiBIa40HI80CRcYbCcQzI8rlOC3Y4lXhF9U5t6Qs4_n9DZKPCf7z7Y_wR2e3TsQ6g';
+      
       const subscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(
-          'BEl62iUYgUivxIkv69yViEuiBIa40HI80CRcYbCcQzI8rlOC3Y4lXhF9U5t6Qs4_n9DZKPCf7z7Y_wR2e3TsQ6g' // Replace with your VAPID public key
-        )
+        applicationServerKey: urlBase64ToUint8Array(vapidKey)
       });
 
       setPushSubscription(subscription);

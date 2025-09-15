@@ -1,9 +1,9 @@
 const CACHE_NAME = 'portfolio-pwa-v1';
 const urlsToCache = [
   '/',
-  '/static/js/bundle.js',
-  '/static/css/main.css',
-  '/manifest.json'
+  '/manifest.json',
+  '/icons/icon-192x192.png',
+  '/icons/icon-512x512.png'
 ];
 
 // Install service worker
@@ -12,7 +12,10 @@ self.addEventListener('install', (event) => {
     caches.open(CACHE_NAME)
       .then((cache) => {
         console.log('PWA Cache opened');
-        return cache.addAll(urlsToCache);
+        return cache.addAll(urlsToCache).catch((error) => {
+          console.warn('Failed to cache some resources:', error);
+          // Continue installation even if some resources fail to cache
+        });
       })
   );
   self.skipWaiting();
@@ -79,14 +82,18 @@ self.addEventListener('push', (event) => {
     ]
   };
 
+  let title = 'Portfolio Update';
   if (event.data) {
     const data = event.data.json();
     options.body = data.body || options.body;
-    options.title = data.title || 'Portfolio Update';
+    title = data.title || title;
+    if (data.url) {
+      options.data.url = data.url;
+    }
   }
 
   event.waitUntil(
-    self.registration.showNotification('Portfolio Update', options)
+    self.registration.showNotification(title, options)
   );
 });
 
@@ -95,16 +102,18 @@ self.addEventListener('notificationclick', (event) => {
   event.notification.close();
 
   if (event.action === 'explore') {
+    const url = event.notification.data?.url || '/';
     event.waitUntil(
-      clients.openWindow('/')
+      clients.openWindow(url)
     );
   } else if (event.action === 'close') {
     // Just close the notification
     return;
   } else {
     // Default action - open the app
+    const url = event.notification.data?.url || '/';
     event.waitUntil(
-      clients.openWindow('/')
+      clients.openWindow(url)
     );
   }
 });

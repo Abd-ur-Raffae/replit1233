@@ -13,7 +13,7 @@ export function PWAInstallPrompt() {
   const [isSubscribing, setIsSubscribing] = useState(false);
   const { toast } = useToast();
 
-  if (!showPrompt || (!canInstall && !pushSubscription === null)) {
+  if (!showPrompt || (!canInstall && !!pushSubscription)) {
     return null;
   }
 
