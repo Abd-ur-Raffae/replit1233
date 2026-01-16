@@ -21,18 +21,13 @@ export default function About() {
             About Me
           </motion.h2>
 
-          <div className="grid lg:grid-cols-2 gap-12 items-center" ref={ref}>
+          <div className="grid lg:grid-cols-2 gap-12 items-center" ref={ref} >
             <motion.div
               initial={{ opacity: 0, x: -50 }}
               animate={isIntersecting ? { opacity: 1, x: 0 } : {}}
               transition={{ duration: 0.8, delay: 0.2 }}
               data-testid="about-image"
             >
-              <img
-                src="/assets/images/2.jpeg"
-                alt="Professional developer workspace"
-                className="rounded-2xl shadow-2xl w-auto h-auto"
-              />
             </motion.div>
 
             <motion.div
@@ -41,7 +36,7 @@ export default function About() {
               transition={{ duration: 0.8, delay: 0.4 }}
               data-testid="about-content"
             >
-              <p className="text-lg text-muted-foreground leading-relaxed mb-6">
+              <p className="text-lg text-muted-foreground leading-relaxed mb-6 content-center">
                 As a Full-Stack Developer at Sprint Synergy, I am responsible for the end-to-end development of web applications,
                 specializing in both front-end and back-end architecture.
               </p>

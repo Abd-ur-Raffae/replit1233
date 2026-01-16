@@ -24,7 +24,7 @@ export default function Home() {
         <div className="container mx-auto px-6">
           <div className="text-center">
             <p className="text-muted-foreground">
-              © 2024 Abd-ur-Raffae Masood. Crafted with ❤️. All rights reserved.
+              © 2026 Abd-ur-Raffae Masood. Crafted with ❤️. All rights reserved.
             </p>
           </div>
         </div>

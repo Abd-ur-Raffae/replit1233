@@ -23,7 +23,7 @@ A modern, professional portfolio website showcasing full-stack development skill
 
 ```bash
 # Install dependencies
-npm install
+npm install --save-dev cross-env
 
 # Start development server
 npm run dev
